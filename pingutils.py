@@ -12,7 +12,7 @@ class PingUtils:
     running = True
 
     def __init__(self):
-        if self.chceck_db_exist():
+        if not self.chceck_db_exist():
             exit()
         self.dbconn = sqlite3.connect('database/ping.db')
         self.db = self.dbconn.cursor()
@@ -59,14 +59,14 @@ class PingUtils:
                 "INSERT INTO ping_stats (site_id) VALUES (?)", (site_id,))
             self.dbconn.commit()
             return True
-        except:
+        except sqlite3.IntegrityError as e:
             syslog.syslog(syslog.LOG_ERR,
-                          "Problem with inserting site. ID %s" % site_id)
+                          "Problem with inserting site. ID %s . %s" % site_id, e)
         return False
 
     def get_all_sites(self):
-        sitesInDb = self.db.execute('SELECT * FROM sites')
-        return sitesInDb.fetchall()
+        sites_in_db = self.db.execute('SELECT * FROM sites')
+        return sites_in_db.fetchall()
 
     def check_if_site_exist(self, site_name):
         sites = self.get_all_sites()
@@ -74,3 +74,21 @@ class PingUtils:
             if site_name == site[1]:
                 return True
         return False
+
+    def delete_site(self, url):
+        if not self.check_if_site_exist(url):
+            print('Site is not on list: %s' % url)
+            return False
+        self.db.execute('DELETE FROM sites WHERE url_addr LIKE ?', (url,))
+        self.dbconn.commit()
+        print('Site deleted: %s' % url)
+        return True
+
+    def add_site(self, url):
+        if self.check_if_site_exist(url):
+            print('Site is already on list: %s' % url)
+            return False
+        self.db.execute('INSERT INTO sites (url_addr) VALUES (?)', (url,))
+        self.dbconn.commit()
+        print('Site added: %s' % url)
+        return True
