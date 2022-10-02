@@ -42,9 +42,9 @@ class PingUtils:
         if self.db.fetchone()[0] != 1:
             file_path = 'sql/%s.sql' % (table_name)
             if exists(file_path):
-                file = open(file_path, 'r')
-                sql_table_script = file.read()
-                file.close()
+                database_file = open(file_path, 'r')
+                sql_table_script = database_file.read()
+                database_file.close()
                 self.db.executescript(sql_table_script)
                 self.dbconn.commit()
                 return True
@@ -91,4 +91,8 @@ class PingUtils:
         self.db.execute('INSERT INTO sites (url_addr) VALUES (?)', (url,))
         self.dbconn.commit()
         print('Site added: %s' % url)
+        return True
+
+    def log_sys(self, message):
+        syslog.syslog(syslog.LOG_INFO, message)
         return True

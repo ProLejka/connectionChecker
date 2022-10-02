@@ -6,9 +6,8 @@ After=network.target
 Type=simple
 RemainAfterExit=yes
 Restart=always
-RestartSec=1
 User=pi
-ExecStart=/usr/bin/env python3 /home/pi/connectionChecker/ping.py
+ExecStart=/bin/bash /home/pi/connectionChecker/conncheck.sh
 
 [Install]
 WantedBy=multi-user.target
