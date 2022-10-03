@@ -2,6 +2,7 @@
 
 from pingutils import PingUtils
 import time
+import random
 
 pinger = PingUtils()
 sitesArray = pinger.get_all_sites()
@@ -15,4 +16,4 @@ while pinger.running:
     for site in sitesArray:
         if not pinger.ping_host(site[1]):
             pinger.insert_stat(site[0])
-    time.sleep(10)
+    time.sleep(10 + random.randrange(0, 6))
